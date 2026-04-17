@@ -8,7 +8,7 @@ import csv
 # --- Configuration ---
 API_URL = "http://localhost:8000/v1/completions"
 MODEL_NAME = "Qwen/Qwen3-0.6B"
-CONCURRENT_REQUESTS = 500
+CONCURRENT_REQUESTS = 1346
 MAX_TOKENS = 100
 TOTAL_PROMPTS = 2000
 OUTPUT_FILE = "output.csv"
@@ -89,7 +89,7 @@ async def main():
     start_time = time.time()
 
     connector = aiohttp.TCPConnector(limit=0)
-    timeout = aiohttp.ClientTimeout(total=None)
+    timeout = aiohttp.ClientTimeout(total=30)
 
     async with aiohttp.ClientSession(connector=connector, timeout=timeout) as session:
         tasks = [send_request(session, i) for i in range(CONCURRENT_REQUESTS)]
@@ -103,11 +103,11 @@ async def main():
     total_tokens = sum(r[3] for r in successful)
 
     if successful_requests > 0:
-        print("\n📊 Results")
-        print(f"Time: {total_time:.2f}s")
-        print(f"Success: {successful_requests}/{CONCURRENT_REQUESTS}")
-        print(f"Throughput: {successful_requests/total_time:.2f} req/s")
-        print(f"Token Throughput: {total_tokens/total_time:.2f} tok/s")
+        print("📊 Results")
+        print(f"Time: {total_time:.2f}s   ")
+        print(f"Success: {successful_requests}/{CONCURRENT_REQUESTS}  ")
+        print(f"Throughput: {successful_requests/total_time:.2f} req/s  ")
+        print(f"Token Throughput: {total_tokens/total_time:.2f} tok/s  ")
 
     # --- Save to CSV ---
     with open(OUTPUT_FILE, "w", newline="", encoding="utf-8") as f:
@@ -118,7 +118,7 @@ async def main():
             if success:
                 writer.writerow([prompt, output.strip(), tokens, latency])
 
-    print(f"\n💾 Saved results to {OUTPUT_FILE}")
+    print(f"💾 Saved results to {OUTPUT_FILE}  ")
 
 if __name__ == "__main__":
     if sys.platform == "win32":
