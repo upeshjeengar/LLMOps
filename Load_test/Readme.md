@@ -89,3 +89,107 @@ Token Throughput: 3084.64 tok/s
 
 so practical breaking point is in between 1000 to 1500, let's find it out with binary search technique...
 So upon experimentating, we are able to serve 1346 requests when I have average 5 input tokens and 100 output tokens per request.
+
+
+# On AWS g4dn.xlarge
+## setting up cuda kernels on this machine:
+```
+sudo apt update
+sudo apt install python3 python3-dev python3-pip
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv venv
+source .venv/bin/activate
+uv pip install vllm --torch-backend=auto
+# Install vLLM with a specific CUDA version (e.g., 13.0).
+export VLLM_VERSION=$(curl -s https://api.github.com/repos/vllm-project/vllm/releases/latest | jq -r .tag_name | sed 's/^v//')
+export CUDA_VERSION=130 # or other
+export CPU_ARCH=$(uname -m) # x86_64 or aarch64
+
+#start server at 8000:
+python -m vllm.entrypoints.openai.api_server --model Qwen/Qwen3-0.6B --max-model-len 512 --max-num-seqs 2000 --enforce-eager
+ 
+python -m vllm.entrypoints.openai.api_server --model Qwen/Qwen3-0.6B --max-model-len 512 --max-num-seqs 2000 --enforce-eager --dtype float16   --attention-backend TRITON_ATTN # use triton attention if flash attention doesn't support
+ 
+vllm serve unsloth/Llama-3.2-1B-Instruct
+curl http://localhost:8000/v1/chat/completions -H "Content-Type: application/json" -d '{"model":"unsloth/Llama-3.2-1B-Instruct","messages":[{"role":"user","content":"Hello!"}]}'
+
+python load_test.py # to laod test
+```
+
+## Few logs
+
+❌ Concurrency 2500 failed (breakpoint reached). Trying a lower load...
+❌ Concurrency 1250 failed (breakpoint reached). Trying a lower load...
+
+--------------------------------------------------
+⚡ Testing Concurrency Level: 625
+--------------------------------------------------
+🚀 Starting load test with 625 requests
+📊 Results
+Time: 17.33s   
+Success: 625/625  
+Throughput: 36.06 req/s  
+Token Throughput: 3606.20 tok/s  
+💾 Saved results to output.csv  
+✅ Concurrency 625 succeeded! Trying a higher load...
+
+--------------------------------------------------
+⚡ Testing Concurrency Level: 937
+--------------------------------------------------
+🚀 Starting load test with 937 requests
+📊 Results
+Time: 28.99s   
+Success: 937/937  
+Throughput: 32.33 req/s  
+Token Throughput: 3232.64 tok/s  
+💾 Saved results to output.csv  
+✅ Concurrency 937 succeeded! Trying a higher load...
+
+--------------------------------------------------
+⚡ Testing Concurrency Level: 1015
+--------------------------------------------------
+🚀 Starting load test with 1015 requests
+📊 Results
+Time: 29.68s   
+Success: 1015/1015  
+Throughput: 34.20 req/s  
+Token Throughput: 3419.78 tok/s  
+💾 Saved results to output.csv  
+✅ Concurrency 1015 succeeded! Trying a higher load...
+
+--------------------------------------------------
+⚡ Testing Concurrency Level: 1054
+--------------------------------------------------
+🚀 Starting load test with 1054 requests
+
+❌ Concurrency 1041 failed (breakpoint reached). Trying a lower load... 
+
+--------------------------------------------------
+⚡ Testing Concurrency Level: 1040
+--------------------------------------------------
+🚀 Starting load test with 1040 requests
+📊 Results
+Time: 30.73s   
+Success: 1040/1040  
+Throughput: 33.84 req/s  
+Token Throughput: 3384.30 tok/s  
+💾 Saved results to output.csv  
+✅ Concurrency 1040 succeeded! Trying a higher load...
+
+==================================================
+🏆 MAXIMUM STABLE CONCURRENCY (BREAKPOINT): 1040
+==================================================
+
+
+## Conclusion: 
+The reason for difference in theoretical and practical concurrency: theoretical concurrency is a memory-bound upper limit, while practical concurrency is constrained by multiple interacting bottlenecks—compute, scheduling, fragmentation, and system overhead.
+
+Why our results actually make sense
+Theoretical: ~2171
+Practical stable: ~1000–1300
+👉 That’s a very normal ratio (~50%) for LLM serving systems
+In production systems, engineers often:
+target only 60–70% of theoretical capacity
+
+to avoid instability spikes
+The reason google colab's GPU is showing higher concurrency is because it was already optimized, but on g4dn I was installing all kernels by myself with base settings, so no optimization.
