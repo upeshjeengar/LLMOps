@@ -176,9 +176,7 @@ Token Throughput: 3384.30 tok/s
 💾 Saved results to output.csv  
 ✅ Concurrency 1040 succeeded! Trying a higher load...
 
-==================================================
 🏆 MAXIMUM STABLE CONCURRENCY (BREAKPOINT): 1040
-==================================================
 
 
 ## Conclusion: 
