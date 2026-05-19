@@ -8,7 +8,7 @@ on:
 
 jobs:
   test-runner:
-    runs-on: upesh-runner
+    runs-on: upesh
 
     steps:
       - name: Checkout repository
