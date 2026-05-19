@@ -1,0 +1,36 @@
+name: Test Self Hosted Runner
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  test-runner:
+    runs-on: upesh-runner
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Print system info
+        run: |
+          echo "Runner is working!"
+          echo "Hostname:"
+          hostname
+
+          echo "Current user:"
+          whoami
+
+          echo "Operating System:"
+          uname -a
+
+          echo "Current Directory:"
+          pwd
+
+      - name: Test file creation
+        run: |
+          mkdir -p test-output
+          echo "Custom runner test successful" > test-output/result.txt
+          cat test-output/result.txt
