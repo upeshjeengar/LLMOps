@@ -19,14 +19,48 @@ Latency(RTT for the first token to appear(if we are using continuous stream of t
 
 - Scalability: Ensuring model performs well as data volume expands(higher context window)
 - Cost Effectiveness: Balancing the economic aspect of model training, deployment and upkeep.
-- Deployment readiness: Focusing on integration ease into existing environments.
+- Deployment readiness: Focusing on integration ease into existing environments.   
+Cost-Quality-Latency triangle is the essential framework for every inference decision. 
 
 ### Model optimization techniques
 1. Model Distillation: Employing a faster, smaller model trained by larger model balancing speed & accuracy throught knowledge transfer and optimizations.
 2. Model Quantization: 32 bit to 16 bit or optimization like NF16, NF8(which preserves more accuracy than simple bit cutting)
+3. KV Caching:  
+**Problem**: Without caching, as an LLM generates tokens, it recomputes attention for all previous tokens in every step (e.g., "The," "The quick," "The quick brown"), causing a bottleneck.  
+**Solution**: The model computes and vectors for the new token and fetches the stored and vectors for all past tokens from GPU memory.  
+**Result**: Only the latest token's attention needs calculation, significantly increasing speed. 
+4. Grouped Query attention: Grouped-query attention is an attention variant derived from standard multi-head attention. Instead of giving every query head its own keys and values, it lets several query heads share the same key-value projections, which makes KV caching much cheaper without changing the overall decoder recipe very much.  
+It optimizes KV-cache size, memory bandwidth, and long-context inference cost
+5. Paged attention: an efficient memory management algorithm for Large Language Model (LLM) serving that reduces GPU memory waste by partitioning the Key-Value (KV) cache into fixed-size blocks.  
+6. FlashAttention is a high-speed, memory-efficient algorithm,  
+   Instead of:  
+   compute full QK^T → store → softmax → multiply V  
+   FlashAttention does something like:  
+   - take block of Q  
+   - take block of K  
+   - compute partial attention 
+   - update result  
+   - discard temporary matrix 
+   - move to next block  
+   ![](https://towardsdatascience.com/wp-content/uploads/2025/01/03odj61pQsdUpvVsK.png)
+   So at any moment, the GPU only holds a small tile of the attention matrix.
+7. Mixture of experts(Only a subset of parameters active per token)
+8. Prefix caching: Caching Q,k,v for initial system prompt or instruction.
+
+
+# Parallelism: Scaling model to multiple CPU/GPUs
+We can scale our model to multiple devices, if it is bigger than whole VRAM or just for sack of parallel processing we want to scale our Model, then we can do so by following methods:
+## 1. Data Parallelism
+Same setup of model is replicated on multiple devices and each device is fed with a slice of data, processing happens parallely and all setups are synchronized later
+
+## 2.ZeRO(Zero Reduandancy optimization) Data Parallel
+ZeRO reduces the memory consumption of each GPU by partitioning the various model training states (weights, gradients, and optimizer states) across the available devices (GPUs and CPUs) in the distributed training hardware, main difference between DP and ZeRO DP is that DP stores full model while ZeRO stores small parts of models on various GPU
+
+## 3. TensorParallel
+Tensor Parallelism partitions tensors (typically weights of a layer) across multiple GPUs, allowing each GPU to compute a portion of the same operation in parallel. Intermediate results are combined using communication primitives like all-reduce or all-gather to produce the final output.
+
 
 # Model Management & ML-Ops
-
 
 Below is a guide and Bash commands to set up MLflow on an Ubuntu system. This setup includes installing MLflow, setting up a backend store for experiments and runs, and launching the MLflow UI.
 
@@ -170,3 +204,13 @@ ssh -L 5000:localhost:5000 remote
 
 ### Conclusion
 You now have MLflow set up on your Ubuntu system with a backend store for tracking experiments and an artifact store for saving model artifacts. You can start running experiments and tracking them using the MLflow Python library, and all your experiment details will be accessible through the MLflow UI.
+
+# Advanced model deployment techniques
+## Batching and Dynamic batches 
+Batching boost efficiency and speed by parallel processing requests on GPUs 
+Instead of single request -> a Batch of request that will do there work concurrently
+
+Dynamic Batching(adaptive batching): Technique which adjusts the batch size of data based on current conditions and requirements.
+
+Challenges: Finding optimal batch size(comes throught experimentation, around theoretical estimated value), Varying input sizes of each request in the batch, balancing latency and throghput.
+
