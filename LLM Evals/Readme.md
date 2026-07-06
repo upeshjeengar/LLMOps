@@ -1,0 +1,49 @@
+# LLM Evaluation
+LLM Evals are systematic, repeatable tests used to judge an LLM or LLM-powered system against a clear criteria. LLM Evals is not just a metric. It is basically the entire testing setup.  
+**Two Types of LLM Evaluations:**
+* Model Evals: "These evaluate the model itself... the main idea is to test and evaluate the capabilities of a model."
+* Application Evals: "These are the ones used to evaluate LLM-based applications where the LLM is just one component."
+While Model Evals (benchmarks) are important for decision-making, the primary focus for engineers is Application Evals because "your job as an AI engineer is to build LLM-based applications, so to evaluate [them] is also your job.
+
+# End-to-end workflow for evaluating LLM-based applications
+
+* Define Task and Target: Clearly establish what the system must achieve (e.g., accurate classification).
+* Define Success Criteria and Metrics : Select measurable indicators, such as Accuracy (the percentage of emails correctly routed).
+* Build a Golden Dataset : Curate a labeled dataset of 50–500 real-world examples (human-verified) to serve as your testing benchmark.
+* Choose an Evaluation Method : Determine how tests will run. Methods can be Automated (code-based scripts), Human-led (manual review), or LLM-based (using another model to grade outputs).
+* Run the Model: Pass your golden dataset through the system.
+* Evaluate and Analyze Results: Compare the outputs against expected labels to calculate performance and pinpoint where the model fails.
+* Improve the System: Optimize the system prompt or upgrade the underlying LLM based on error patterns.
+* Iterative Loop: Re-run the evaluation cycle to confirm that changes have led to measurable improvements.
+* Deployment and Production Monitoring: Deploy the model while maintaining a feedback loop. When the system fails in production, capture those specific cases and add them to your Golden Dataset to prevent future regressions.
+
+# Why our AI Application Needs Multiple Eval Pipelines?
+Our individual components of a Retrieval-Augmented Generation(like Retriever and model) might be working fine but as a whole AI Application can still fail. For eg. we had chose k=5 in retriever, but 4 irrelevant chunks can corrupt the query to our model and model might get confuse.  
+So we should have a combined evaluator(to test our application combined along with individual evals at each step)
+Along with accuracy, we also need to maintain low latency, optimal cost per query, and data privacy(We should have strict guardrails to avoid revealing other users' information or any organization-specific data that the requesting user is not authorized to access).
+**The Three Pillars of Risk:** 
+Evaluation pipelines should be structured around three risk categories:
+* Application Quality: Ensuring the model provides correct, relevant, and complete answers.
+* Safety: Guarding against toxicity, data leaks, and jailbreak attempts.
+* Operations: Managing performance, including latency under load and cost per request.
+
+## Programmatic/Deterministic Pipeline
+### Recall@k For Retriever :
+**Recall@K** Out of all the correct documents that exists, how many did the system retrieve in its top k results.(Number of relevant items in top k/Total number of relevant items)   
+Create a Golden test dataset(by human or a powerful intelligent model - one time cost) , recall@k will be mean of all recalls from each query in this dataset.
+### How can we improve?
+* Fixing the embedding model.
+* Fixing the input query with help of LLM.
+* Increase K.
+* Reranking(reranking the top k results according to query).
+
+## Human Evaluation
+* Red teaming: attacks LLM systems for testing jailbreaking, prompt injections, edge-case scenarios, and tries to make model produce harmful/wrong output.
+* A/B Testing: real users as grader in the production(can be evaluated as thumbs-up, compare two responses)
+* Direct grading/rating: Person reads outputs and scores them against a rubric(the Eval criteria on the basis of pipeline we had created)
+* Gold answer/Dataset creator: Human creating the golden dataset.
+* HITL(Human in the loop): Human reviews/rejects/approves/edits live outputs.
+
+## Two types of LLM evaluation
+* Reference Based: A known correct answer written down in advance for each test case, we grade by comparing output against that reference
+* Referece free: We have no predefined correct answer, we judge the quality directly on its own terms, against a criteria/rubric but a rubric here is a scale/standard("what does a good answer looks like and not a per-term correct answer).
