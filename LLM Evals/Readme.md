@@ -1,4 +1,5 @@
 # LLM Evaluation
+![](https://cdn.sanity.io/images/k7elabj6/production/6fe91ce5a30a3a26401151ae1ec13e014e816f92-1536x1024.png )
 LLM Evals are systematic, repeatable tests used to judge an LLM or LLM-powered system against a clear criteria. LLM Evals is not just a metric. It is basically the entire testing setup.  
 **Two Types of LLM Evaluations:**
 * Model Evals: "These evaluate the model itself... the main idea is to test and evaluate the capabilities of a model."
@@ -47,3 +48,24 @@ Create a Golden test dataset(by human or a powerful intelligent model - one time
 ## Two types of LLM evaluation
 * Reference Based: A known correct answer written down in advance for each test case, we grade by comparing output against that reference
 * Referece free: We have no predefined correct answer, we judge the quality directly on its own terms, against a criteria/rubric but a rubric here is a scale/standard("what does a good answer looks like and not a per-term correct answer).
+
+# Offline vs Online Evals
+## Offline Evals
+offline evals helps us do pre-release testing(gating), version comparison of two versions of agent/system prompt/models and regression testing(if we try to improve one thing in complex system, then other thing might get affected so try to have all types of cases in golden dataset).
+
+## Online Evals
+1. Unanticipated inputs(questions mixing, different languages, ambiguous questions, angry rants, prompt injection, edge-cases)
+2. Emergent/systemic failures(problems that exist at scale, under load, over time(p99 latency), a subtle bias across a user group)
+3. Data Drift(changes in documents, data distribution) so eval should also be updated accordingly.
+
+### Online Evals pipeline:
+Try to log things(maybe you can delete in a week), what you will log:
+- Identification: Conversation Id, user Id, timestamp
+- Input: raw input plus any preprocessing(normalized text/detected intent by model)
+- Retrieved context
+- Output: model name/version id, prompt version, tool calls, finish reason.
+- Operational telemetry: derived cost, tokens, latency(separtely store retrieval and generation latency),
+- Downstream user signals: user behavioural metrics(thumbs up/down, check if user is getting frustrated, user wanted an escalation, repeated query). Langsmith is a tool where you can store this.
+
+Logging should be non-blocking(should not increase latency), durable+queryable, late-signal attachment(signals lands at different times), PII handling(scrub/tokenize Personally Identifiable Information like emails, phone numbers,, payment details, apply retention limits and access control). 
+Langsmith is a complete platform to manage and track all our experiementations of chatbots/agents.
