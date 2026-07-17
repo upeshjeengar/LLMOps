@@ -75,11 +75,11 @@ To understand Benchmarks, first we need to have a clear understanding of LLM cap
 LLM Capabilites:
 1. Knowledge and Reasoning: Factual recall on subjects(**MMLU(Massive Multitask Language Understanding)** benchmark evaluates LLMs on 57 subjects.
 2. Coding and software engineering: Highest revenue from LLM is coming from this field only(Claude has only 20Mn monthly active users with revenue of $40Bn while ChatGPT has 1 Biilion Weekly active users with revenue $25Bn)
- - Function-level code generation
- - Real world bug fixing in existing codebases
- - Multi-file, long horizon tasks
- - CLI level installation, configuration
- - API and function calling
+  - Function-level code generation
+  - Real world bug fixing in existing codebases
+  - Multi-file, long horizon tasks
+  - CLI level installation, configuration
+  - API and function calling
 3. Mathematics (Testing LLMs on Grade school to research level mathematical reasoning)
 4. Long context (Single fact retrieval from long contexts, aggregation over long content, code repository understanding)
 5. Vision and Multimodal capabilities
