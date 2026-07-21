@@ -86,3 +86,45 @@ LLM Capabilites:
 6. Agentic and tool use
 7. Safety and Alignment(to jailbreaks, prompt injection, cybersec capabilities)
 8. Instruction following
+
+# Benchmarks
+Benchmark is a standardised test used to measure a particular model capability.
+Every benchmark is built from 4 parts.
+## 1. The Dataset
+Dataset is question plus the answer key
+eg. GSM-8k: basic high school maths [dataset](https://huggingface.co/datasets/openai/gsm8k). 
+## 2. Run Configuration
+list of all settings under which model was run during evaluation.
+- Prompt instruction should be consistent(can be one of the two types: zero shot or few shot, chain of thought vs direct)
+- Decoding and sampling config: temperature -> 0, max_tokens
+- scoring strategy and environment: whether to use pass@1 or pass@k as success metric, tools were on or off
+
+## 3. Scoring method
+Extraction(finding answer in output, use regex or round functions for closed ended answer and LLM as judge for open ended)
+
+## 4. Aggregaion
+You've graded thousands of items, each right or wrong. Aggregation collapses them into a summary
+
+For LLM Evaluation loop(passing one by one all example from benchmark dataset to model, then extracting output using regex or json, then testing it with expected answer and storing the evaluation for all sample points) can be done by lm-evaluation harness [library](https://github.com/EleutherAI/lm-evaluation-harness)(other eval-harness library is deep eval).   
+
+Who evaluates this? 
+- frontier labs evaluates their own models.
+- LLMarena(third-party evaluators).
+- AI teams evaluates in house(most reliable and customizable)
+
+Why Benchmarks can be misleading?
+1. Benchmark contamination
+2. Benchmark saturation(all frontier models start performing equivalently and at highest score achievable)
+3. Configuration gaming(higher number of thinking tokens while eval, gives average score instead of subject wise score)
+4. Aggregation
+
+
+
+
+
+
+
+
+
+
+
