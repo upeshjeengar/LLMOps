@@ -9,7 +9,7 @@ The goal is not to memorise every acronym in the LLM ecosystem. It is to build a
 This guide begins with the mechanics of a decoder-only language model: tokenisation, embeddings, attention, transformer blocks, pre-training, and generation. It then moves into the work that turns a base model into an engineering system: fine-tuning, reinforcement learning, evaluation, efficient inference, retrieval, tool use, MCP, multi-agent systems, and multimodality.
 
 Most of these resources are the exact links I used while learning. I have added context around each one so you know *why* it is worth opening and *when* to use it.
-
+If you want a digital copy of my raw notes here you go: https://docs.google.com/document/d/1cfMtS-CWMyz6wliYDUlaiDU8P2a5dUvdJZY8EiJwjoo/  
 ## Table of contents
 
 - [How I would use this repository](#how-i-would-use-this-repository)
