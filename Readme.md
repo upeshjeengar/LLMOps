@@ -1,8 +1,8 @@
-# My 3-Year LLM Engineering Learning Notes
+# My 1-Year LLM Engineering Learning Notes
 
 > A practical, first-principles path from tokens and transformers to fine-tuning, reasoning models, inference systems, RAG, MCP, and agents.
 
-Hi, I'm **Upesh Jeengar**. Over the last three years, I have kept notes while learning how large language models work and how to build applications around them. This repository is my attempt to turn those scattered notes, papers, videos, notebooks, and implementation lessons into a learning path that somebody else can actually follow.
+Hi, I'm **Upesh Jeengar**. Over the last one year, I have kept notes while learning how large language models work and how to build applications around them. This repository is my attempt to turn those scattered notes, papers, videos, notebooks, and implementation lessons into a learning path that somebody else can actually follow.
 
 The goal is not to memorise every acronym in the LLM ecosystem. It is to build a mental model strong enough that you can read a paper, implement a small version of an idea, understand its trade-offs, and decide when it is useful in a real product.
 
